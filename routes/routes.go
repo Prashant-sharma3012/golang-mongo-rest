@@ -74,6 +74,46 @@ func addStudent(w http.ResponseWriter, r *http.Request) {
 
 func updateStudent(w http.ResponseWriter, r *http.Request) {
 
+	ctx := context.Background()
+
+	body := student{}
+	inDB := student{}
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.Decode(&body)
+
+	fmt.Println("#########################")
+	fmt.Println(body)
+
+	objectIDS, err := primitive.ObjectIDFromHex(body.ID)
+	idDoc := bson.D{{"_id", objectIDS}}
+
+	err = collection.FindOne(ctx, idDoc).Decode(&inDB)
+
+	if err != nil {
+		fmt.Errorf("updateTask: couldn't decode task from db: %v", err)
+	}
+
+	res, err := collection.UpdateOne(
+		ctx,
+		idDoc,
+		bson.D{
+			{"$set", bson.D{
+				{"name", body.Name},
+				{"rollNo", body.RollNo}},
+			},
+			{"$currentDate", bson.D{{"modifiedAt", true}}},
+		},
+	)
+
+	fmt.Println("#########################")
+	fmt.Println(res)
+
+	if err != nil {
+		fmt.Println("Error while update")
+	}
+
+	w.Write([]byte("Student updated successfully"))
 }
 
 func deleteStudent(w http.ResponseWriter, r *http.Request) {
