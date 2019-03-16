@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -38,17 +39,21 @@ func list(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	res, _ := collection.Find(ctx, bson.M{})
+	studentCursor, _ := collection.Find(ctx, bson.M{})
+	defer studentCursor.Close(ctx)
 
-	students := make([]student, 1)
-
-	for res.Next(context.Background()) {
-		s := student{}
-		res.Decode(&s)
-		students = append(students, s)
+	var students []student
+	for studentCursor.Next(nil) {
+		student := student{}
+		err := studentCursor.Decode(&student)
+		if err != nil {
+			log.Fatal("Decode error ", err)
+		}
+		students = append(students, student)
 	}
 
-	fmt.Println(students)
+	jsonRes, _ := json.Marshal(students)
+	w.Write(jsonRes)
 }
 
 func addStudent(w http.ResponseWriter, r *http.Request) {
