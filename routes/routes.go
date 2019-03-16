@@ -71,7 +71,7 @@ func addStudent(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		fmt.Println("Error while insert")
+		fmt.Println("Error while insert" + err.Error())
 	}
 
 	w.Write([]byte("Student added successfully" + res.InsertedID.(primitive.ObjectID).Hex()))
@@ -99,7 +99,7 @@ func updateStudent(w http.ResponseWriter, r *http.Request) {
 		fmt.Errorf("updateTask: couldn't decode task from db: %v", err)
 	}
 
-	res, err := collection.UpdateOne(
+	_, err = collection.UpdateOne(
 		ctx,
 		idDoc,
 		bson.D{
@@ -111,11 +111,8 @@ func updateStudent(w http.ResponseWriter, r *http.Request) {
 		},
 	)
 
-	fmt.Println("#########################")
-	fmt.Println(res)
-
 	if err != nil {
-		fmt.Println("Error while update")
+		fmt.Println("Error while update" + err.Error())
 	}
 
 	w.Write([]byte("Student updated successfully"))
@@ -137,7 +134,7 @@ func deleteStudent(w http.ResponseWriter, r *http.Request) {
 	_, err = collection.DeleteOne(ctx, bson.D{{"_id", objectIDS}})
 
 	if err != nil {
-		fmt.Println("deleteTask: couldn't delete student from db")
+		fmt.Println("deleteTask: couldn't delete student from db" + err.Error())
 	}
 
 	w.Write([]byte("Deleted Succesfully"))

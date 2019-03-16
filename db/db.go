@@ -15,7 +15,8 @@ func init() {
 	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
 
 	if err != nil {
-		fmt.Println("mongo error ho gyi")
+		fmt.Println("mongo connection error")
+		fmt.Errorf(err.Error())
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -29,5 +30,5 @@ func init() {
 
 	DB = client.Database("go-mdb")
 
-	fmt.Println(DB)
+	fmt.Println("DB Conneted")
 }
