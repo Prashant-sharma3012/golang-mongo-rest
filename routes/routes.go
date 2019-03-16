@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/tryOne/db"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var R *mux.Router
@@ -36,10 +38,13 @@ func init() {
 }
 
 func list(w http.ResponseWriter, r *http.Request) {
+	limit, _ := strconv.ParseInt(r.FormValue("limit"), 10, 64)
+	skip, _ := strconv.ParseInt(r.FormValue("skip"), 10, 64)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	studentCursor, _ := collection.Find(ctx, bson.M{})
+	studentCursor, _ := collection.Find(ctx, bson.M{}, options.Find().SetSkip(skip).SetLimit(limit))
 	defer studentCursor.Close(ctx)
 
 	var students []student
